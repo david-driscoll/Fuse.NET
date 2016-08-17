@@ -163,5 +163,86 @@ namespace FuseCs.Tests
             Assert.Equal(6, b.Start);
             Assert.Equal(8, b.End);
         }
+
+        class StringKey
+        {
+            public string A { get; set; }
+        }
+        class StringArrayKey
+        {
+            public string[] A { get; set; }
+        }
+        class StringEnumerableKey
+        {
+            public IEnumerable<string> A { get; set; }
+        }
+        class StringCollectionKey
+        {
+            public ICollection<string> A { get; set; }
+        }
+
+        [Fact]
+        public void GenerateStringKeys()
+        {
+            var item = new[]
+            {
+                new StringKey {A = "123"},
+                new StringKey {A = "345"},
+                new StringKey {A = "567"},
+            };
+
+            var fuse = Fuse.Create<StringKey>();
+            var result = fuse.Search(item, "3");
+
+            Assert.Equal(2, result.Count());
+        }
+
+        [Fact]
+        public void GenerateStringArrayKeys()
+        {
+            var item = new[]
+            {
+                new StringArrayKey {A = new [] { "123", "456" }},
+                new StringArrayKey {A = new [] { "345", "678" }},
+                new StringArrayKey {A = new [] { "567", "890" }},
+            };
+
+            var fuse = Fuse.Create<StringArrayKey>();
+            var result = fuse.Search(item, "5");
+
+            Assert.Equal(3, result.Count());
+        }
+
+        [Fact]
+        public void GenerateStringEnumerableKeys()
+        {
+            var item = new[]
+            {
+                new StringEnumerableKey {A = new [] { "123", "456" }},
+                new StringEnumerableKey {A = new [] { "345", "678" }},
+                new StringEnumerableKey {A = new [] { "567", "890" }},
+            };
+
+            var fuse = Fuse.Create<StringEnumerableKey>();
+            var result = fuse.Search(item, "5");
+
+            Assert.Equal(3, result.Count());
+        }
+
+        [Fact]
+        public void GenerateStringCollectionKeys()
+        {
+            var item = new[]
+            {
+                new StringCollectionKey {A = new List<string>{ "123", "456" }},
+                new StringCollectionKey {A = new List<string> { "345", "678" }},
+                new StringCollectionKey {A = new List<string>{ "567", "890" }},
+            };
+
+            var fuse = Fuse.Create<StringCollectionKey>();
+            var result = fuse.Search(item, "5");
+
+            Assert.Equal(3, result.Count());
+        }
     }
 }

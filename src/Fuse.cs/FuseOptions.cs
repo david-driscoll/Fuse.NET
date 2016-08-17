@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using FuseCs.Searching;
 
@@ -18,6 +20,32 @@ namespace FuseCs
 
     public class FuseOptions<T> : FuseOptions
     {
-        public IEnumerable<FuseKey<T>> Keys { get; set; }
+        private IEnumerable<FuseKey<T>> _keys;
+
+        public IEnumerable<FuseKey<T>> Keys
+        {
+            get
+            {
+                if (_keys != null) return _keys;
+                var properties = typeof(T)
+                    .GetTypeInfo()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance);
+                var stringProperties = typeof(T)
+                    .GetTypeInfo()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(x => x.PropertyType == typeof(string));
+                var enumerableStringProperties = typeof(T)
+                    .GetTypeInfo()
+                    .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .Where(x => typeof(IEnumerable<string>).GetTypeInfo().IsAssignableFrom(x.PropertyType));
+
+                return _keys = enumerableStringProperties
+                    .Union(stringProperties)
+                    .Select(x => FuseKey.Create(typeof(T), x))
+                    .Cast<FuseKey<T>>()
+                    .ToArray();
+            }
+            set { _keys = value; }
+        }
     }
 }
