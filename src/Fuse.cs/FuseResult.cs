@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using FuseCs.Matching;
 
 namespace FuseCs
 {
@@ -11,7 +13,20 @@ namespace FuseCs
         }
 
         public T Item { get; }
-        public ICollection<FuseResultOutput<T>> Output { get; }
+        internal ICollection<FuseResultOutput<T>> Output { get; }
         public double Score { get; internal set; }
+
+        private IDictionary<string, IEnumerable<MatchedIndex>> _matches;
+        public IDictionary<string, IEnumerable<MatchedIndex>> Matches
+        {
+            get
+            {
+                if (this._matches == null)
+                {
+                    _matches = Output.ToDictionary(x => x.Name, x => x.MatchedIndices);
+                }
+                return _matches;
+            }
+        }
     }
 }

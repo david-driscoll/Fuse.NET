@@ -123,7 +123,7 @@ namespace FuseCs
             {
                 var weight = output.Key.Weight;
                 var nScore = output.Score * weight;
-                if (Math.Abs(weight - 1) > 0.0001)
+                if (Math.Abs(weight - 1) > 0.00001)
                 {
                     bestScore = Math.Min(bestScore, nScore);
                 }
@@ -133,7 +133,7 @@ namespace FuseCs
                     // output.NScore = nScore;
                 }
             }
-            if (Math.Abs(bestScore - 1) > 0.0001)
+            if (Math.Abs(bestScore - 1) < 0.00001)
             {
                 result.Score = totalScore / result.Output.Count;
             }
