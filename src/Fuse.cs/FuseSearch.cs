@@ -38,27 +38,24 @@ namespace FuseCs
         {
             get
             {
-                if (_results == null)
-                {
-                    StartSearch();
-                    _results = _cache.Values
-                        .Select(PrepareScore)
-                        .OrderByDescending(x => x.Score)
-                        .ToArray();
-                }
-                return _results;
-            }
-        }
-
-        private void StartSearch()
-        {
-            foreach (var item in _items)
-            {
+                if (_results != null) return _results;
                 var index = 0;
-                foreach (var key in _options.Keys)
+                foreach (var item in _items)
                 {
-                    Analyze(key, key.LookupFunc(item), item, index++);
+                    foreach (var key in _options.Keys)
+                    {
+                        Analyze(key, key.LookupFunc(item), item, index);
+                    }
+                    FuseResult<T> result;
+                    if (_cache.TryGetValue(index, out result))
+                    {
+                        PrepareScore(result);
+                    }
+                    index += 1;
                 }
+
+                return _results = _cache.Values
+                    .OrderByDescending(x => x.Score);
             }
         }
 
@@ -102,7 +99,7 @@ namespace FuseCs
                 var finalScore = fullResult.Score;
                 if (averageScore.HasValue)
                 {
-                    finalScore = (finalScore + averageScore.Value) / 2d;
+                    finalScore = (finalScore + averageScore.Value) / 2;
                 }
 
                 if (exists || fullResult.IsMatch)
@@ -118,7 +115,7 @@ namespace FuseCs
             }
         }
 
-        private static FuseResult<T> PrepareScore(FuseResult<T> result)
+        private static void PrepareScore(FuseResult<T> result)
         {
             double totalScore = 0;
             double bestScore = 1;
@@ -144,7 +141,6 @@ namespace FuseCs
             {
                 result.Score = bestScore;
             }
-            return result;
         }
     }
 }
